@@ -1,0 +1,36 @@
+# ============================================================
+# NeuroMate — Python Dependencies
+# ============================================================
+# Install with: pip install -r requirements.txt
+#
+# NOTE on google-generativeai:
+#   This package pulls `cryptography` as a dependency, which
+#   requires a C compiler (Xcode Command Line Tools on macOS).
+#   If you get a build error, install Xcode tools first:
+#       xcode-select --install
+#   Then re-run: pip install -r requirements.txt
+#
+# For Streamlit Cloud: set GEMINI_API_KEY in Secrets dashboard.
+# The cloud build environment has all compilers pre-installed.
+# ============================================================
+
+# ── Core Framework ──────────────────────────────────────────
+streamlit>=1.35.0
+
+# ── Environment Variables ───────────────────────────────────
+python-dotenv>=1.0.0
+
+# ── Data & Analytics (Insights page) ───────────────────────
+pandas>=2.0.0
+numpy>=1.26.0
+
+# ── Google Gemini AI (Phase 2) ──────────────────────────────
+# Requires Xcode Command Line Tools on macOS:
+#   xcode-select --install
+google-generativeai>=0.7.0
+
+# ── Future: Database upgrade ────────────────────────────────
+# sqlalchemy>=2.0.0
+
+# ── Future: Time/date utilities ─────────────────────────────
+# python-dateutil>=2.8.2
