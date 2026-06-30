@@ -41,8 +41,7 @@ init_session_key("pipeline_results", {})
 # Each st.Page() defines a page: the file path is relative to this file (app.py).
 # All pages listed here are automatically registered for st.switch_page() use.
 
-_home      = st.Page("pages/Home.py",      title="Home",          icon="🏠", default=True)
-_dashboard = st.Page("pages/Dashboard.py", title="Dashboard",     icon="📊")
+_dashboard = st.Page("pages/Dashboard.py", title="Dashboard",     icon="📊", default=True)
 _planner   = st.Page("pages/Planner.py",   title="Daily Planner", icon="🗓")
 _companion = st.Page("pages/Companion.py", title="AI Companion",  icon="💬")
 _insights  = st.Page("pages/Insights.py",  title="Insights",      icon="📈")
@@ -51,7 +50,7 @@ _settings  = st.Page("pages/Settings.py",  title="Settings",      icon="⚙️")
 
 pg = st.navigation(
     {
-        "NeuroMate": [_home, _dashboard],
+        "NeuroMate": [_dashboard],
         "Productivity": [_planner, _insights],
         "AI & Personal": [_companion, _journal],
         "System": [_settings],
