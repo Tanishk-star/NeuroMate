@@ -3,17 +3,11 @@ app.py — NeuroMate Main Application Entry Point
 =================================================
 Run with: streamlit run app.py
 
-This file configures the Streamlit multi-page application:
-    - Sets the global page configuration and theme.
-    - Defines the sidebar navigation.
-    - Displays the landing/home screen.
-    - Initialises global session state.
-    - Shows a configuration warning if secrets are missing.
-
-Architecture Note:
-    Each page in the pages/ directory is a separate Streamlit script.
-    Streamlit's native multi-page routing handles navigation automatically.
-    This file serves as the root that users land on when the app starts.
+Architecture:
+    Uses st.navigation() + st.Page() (Streamlit 1.36+ multipage API).
+    st.set_page_config() is called exactly ONCE here.
+    CSS is injected globally via apply_css_only().
+    Each page file handles its own content only.
 """
 
 import streamlit as st
@@ -24,23 +18,51 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import APP_NAME, APP_VERSION, APP_DESCRIPTION
-from utils import today_label, init_session_key, apply_custom_theme
+from utils import today_label, init_session_key, apply_css_only
 
-# Apply visual design system and page configuration
-apply_custom_theme(APP_NAME, "🧠")
+# ─── Page Config (called exactly ONCE for the entire app) ────────────────────
+st.set_page_config(
+    page_title=APP_NAME,
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
-# ─── Global Session State Initialization ──────────────────────────────────────
+# ─── Global CSS (injected once, applies to every page) ───────────────────────
+apply_css_only()
+
+# ─── Global Session State ────────────────────────────────────────────────────
 init_session_key("user_name", "Friend")
 init_session_key("chat_history", [])
 init_session_key("journal_authenticated", False)
 init_session_key("pipeline_results", {})
 
-# ─── Sidebar Layout ───────────────────────────────────────────────────────────
+# ─── Page Registry (st.navigation API) ───────────────────────────────────────
+# Each st.Page() defines a page: the file path is relative to this file (app.py).
+# All pages listed here are automatically registered for st.switch_page() use.
+
+_home      = st.Page("pages/Home.py",      title="Home",          icon="🏠", default=True)
+_dashboard = st.Page("pages/Dashboard.py", title="Dashboard",     icon="📊")
+_planner   = st.Page("pages/Planner.py",   title="Daily Planner", icon="🗓")
+_companion = st.Page("pages/Companion.py", title="AI Companion",  icon="💬")
+_insights  = st.Page("pages/Insights.py",  title="Insights",      icon="📈")
+_journal   = st.Page("pages/Journal.py",   title="Journal",       icon="📓")
+_settings  = st.Page("pages/Settings.py",  title="Settings",      icon="⚙️")
+
+pg = st.navigation(
+    {
+        "NeuroMate": [_home, _dashboard],
+        "Productivity": [_planner, _insights],
+        "AI & Personal": [_companion, _journal],
+        "System": [_settings],
+    }
+)
+
+# ─── Sidebar (runs on every page navigation) ─────────────────────────────────
 with st.sidebar:
-    # Big logo & Title
     st.markdown(
         f"""
-        <div style="text-align: center; padding: 2rem 0 1rem 0;">
+        <div style="text-align: center; padding: 1.5rem 0 1rem 0;">
             <div style="font-size: 3.5rem; text-shadow: 0 0 15px rgba(99,102,241,0.3); margin-bottom: 0.5rem;">🧠</div>
             <h2 style="margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.04em; color: #ffffff;">
                 {APP_NAME}
@@ -54,7 +76,6 @@ with st.sidebar:
     )
     st.divider()
 
-    # Time Info
     st.markdown(
         f"""
         <div style="padding: 0.2rem 1rem;">
@@ -66,7 +87,6 @@ with st.sidebar:
     )
     st.divider()
 
-    # Profile Area
     user_initial = st.session_state.user_name[0].upper() if st.session_state.user_name else "U"
     st.markdown(
         f"""
@@ -83,94 +103,11 @@ with st.sidebar:
         """,
         unsafe_allow_html=True,
     )
-    
+
     st.markdown(
         f"<p style='color:#475569; font-size:0.7rem; text-align:center; margin-top:1rem;'>v{APP_VERSION} · built for kaggle ai capstone</p>",
         unsafe_allow_html=True,
     )
 
-# ─── Home / Landing Screen ────────────────────────────────────────────────────
-st.markdown(
-    f"""
-    <div style="text-align: center; padding: 3rem 2rem 2rem 2rem;">
-        <div style="font-size: 5rem; margin-bottom: 1rem;">🧠</div>
-        <h1 style="font-size: 2.75rem; font-weight: 800; margin: 0;">
-            Welcome to {APP_NAME}
-        </h1>
-        <p style="font-size: 1.2rem; color: #64748b; margin-top: 0.75rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-            {APP_DESCRIPTION}
-        </p>
-        <p style="color: #94a3b8; margin-top: 0.5rem;">
-            Reduce decision fatigue. Reclaim your focus. Let AI do the heavy lifting.
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.divider()
-
-# ─── Feature Overview Cards ───────────────────────────────────────────────────
-col1, col2, col3 = st.columns(3, gap="medium")
-
-features = [
-    ("📋", "Smart Task Management", "Add and organise tasks. AI agents prioritise them by urgency and importance."),
-    ("🗓", "Intelligent Scheduling", "Time-block your day automatically based on your priorities and energy levels."),
-    ("🧘", "Wellness Monitoring", "Get nudged to take breaks, hydrate, and avoid burnout before it happens."),
-    ("💡", "Personalised Recommendations", "Context-aware suggestions tailored to your goals and personality."),
-    ("📓", "Private Journal", "A secure, password-protected diary to capture your thoughts and track mood trends."),
-    ("📊", "Productivity Insights", "Understand your patterns and improve week over week with AI analytics."),
-]
-
-for i, (icon, title, desc) in enumerate(features):
-    with [col1, col2, col3][i % 3]:
-        with st.container(border=True):
-            st.markdown(
-                f"""
-                <div style="padding: 0.5rem 0;">
-                    <div style="font-size: 1.75rem;">{icon}</div>
-                    <p style="font-weight: 600; margin: 0.4rem 0 0.25rem 0;">{title}</p>
-                    <p style="color: #64748b; font-size: 0.85rem; margin: 0;">{desc}</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-st.divider()
-
-# ─── Agent Pipeline Overview ──────────────────────────────────────────────────
-st.subheader("🤖 Multi-Agent Pipeline")
-st.caption("NeuroMate uses six specialised AI agents that collaborate to process your input end-to-end.")
-
-pipeline = [
-    ("🎯", "Intake", "Parses raw input"),
-    ("📊", "Priority", "Ranks by importance"),
-    ("🗓", "Scheduler", "Builds daily plan"),
-    ("🧘", "Wellness", "Checks overload"),
-    ("💡", "Recommend", "Suggests actions"),
-    ("🪞", "Reflection", "Composes response"),
-]
-
-pipe_cols = st.columns(len(pipeline))
-for i, (icon, name, desc) in enumerate(pipeline):
-    with pipe_cols[i]:
-        st.markdown(
-            f"""
-            <div style="text-align:center; padding: 0.75rem 0.25rem;">
-                <div style="font-size: 1.5rem;">{icon}</div>
-                <p style="font-weight: 600; font-size: 0.85rem; margin: 0.25rem 0 0.1rem 0;">{name}</p>
-                <p style="color: #64748b; font-size: 0.75rem; margin: 0;">{desc}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        if i < len(pipeline) - 1:
-            pass  # Arrow rendered via column layout
-
-st.divider()
-
-# ─── CTA ─────────────────────────────────────────────────────────────────────
-cta_col1, cta_col2, cta_col3 = st.columns([1, 1, 1])
-with cta_col2:
-    if st.button("🚀 Go to Dashboard", use_container_width=True, type="primary"):
-        st.switch_page("pages/Dashboard.py")
+# ─── Run the selected page ────────────────────────────────────────────────────
+pg.run()

@@ -204,19 +204,11 @@ def safe_get(data: dict, *keys: str, default: Any = None) -> Any:
 # Theme Customization
 # ---------------------------------------------------------------------------
 
-def apply_custom_theme(page_title: str, page_icon: str) -> None:
+def apply_css_only() -> None:
     """
-    Applies the custom NeuroMate design system (Notion/Linear/Apple style)
-    and configures page-specific settings.
-    This must be called at the very beginning of each page.
+    Injects the NeuroMate global CSS without calling st.set_page_config.
+    Safe to call from any page when using st.navigation() architecture.
     """
-    st.set_page_config(
-        page_title=page_title,
-        page_icon=page_icon,
-        layout="wide",
-        initial_sidebar_state="expanded",
-    )
-    
     st.markdown(
         """
         <style>
@@ -524,3 +516,23 @@ def apply_custom_theme(page_title: str, page_icon: str) -> None:
         unsafe_allow_html=True,
     )
 
+
+def apply_custom_theme(page_title: str, page_icon: str) -> None:
+    """
+    Applies the custom NeuroMate design system (Notion/Linear/Apple style)
+    and configures page-specific settings.
+
+    NOTE: When using st.navigation() in app.py, this function's set_page_config
+    call is silently ignored (already called by app.py). The CSS is still applied.
+    """
+    try:
+        st.set_page_config(
+            page_title=page_title,
+            page_icon=page_icon,
+            layout="wide",
+            initial_sidebar_state="expanded",
+        )
+    except Exception:
+        # set_page_config already called by app.py — expected with st.navigation()
+        pass
+    apply_css_only()

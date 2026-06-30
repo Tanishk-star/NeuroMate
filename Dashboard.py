@@ -6,11 +6,8 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import mcp_server as mcp
-from utils import today_label, init_session_key, apply_custom_theme
+from utils import today_label, init_session_key
 from config import APP_NAME
-
-# Apply page configuration and design system
-apply_custom_theme(f"Dashboard — {APP_NAME}", "🧠")
 
 # ─── Session State ────────────────────────────────────────────────────────────
 init_session_key("user_name", "Friend")

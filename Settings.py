@@ -23,11 +23,8 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import mcp_server as mcp
-from utils import init_session_key, apply_custom_theme
+from utils import init_session_key
 from config import APP_NAME, APP_VERSION, validate_config
-
-# Apply page configuration and design system
-apply_custom_theme(f"Settings — {APP_NAME}", "⚙️")
 
 # ─── Load current preferences ─────────────────────────────────────────────────
 prefs = mcp.load_preferences()

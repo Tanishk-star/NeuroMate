@@ -26,10 +26,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import mcp_server as mcp
 from config import APP_NAME, JOURNAL_PASSWORD_HASH, DATA_DIR
-from utils import verify_password, init_session_key, apply_custom_theme
-
-# Apply page configuration and design system
-apply_custom_theme(f"Journal — {APP_NAME}", "📓")
+from utils import verify_password, init_session_key, hash_password
 
 # ─── Session State ────────────────────────────────────────────────────────────
 init_session_key("journal_authenticated", False)
@@ -45,8 +42,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-import json
-from utils import hash_password
 
 AUTH_FILE = os.path.join(DATA_DIR, "journal_auth.json")
 

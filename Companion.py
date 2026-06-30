@@ -19,11 +19,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utils import init_session_key, apply_custom_theme
-from config import APP_NAME
-
-# Apply page configuration and design system
-apply_custom_theme(f"Companion — {APP_NAME}", "💬")
+from utils import init_session_key
 
 # ─── Session State ────────────────────────────────────────────────────────────
 init_session_key("chat_history", [

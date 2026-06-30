@@ -23,10 +23,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import mcp_server as mcp
 from config import APP_NAME
-from utils import apply_custom_theme
-
-# Apply page configuration and design system
-apply_custom_theme(f"Insights — {APP_NAME}", "📊")
 
 
 # ─── Helper (defined before use) ──────────────────────────────────────────────
